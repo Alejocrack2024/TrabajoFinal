@@ -7,7 +7,7 @@
 - Docker Compose
 
 # Decargar repo:
-git clone https://github.com/tu-usuario/inventario-django.git docker compose up --build
+git clone https://github.com/Alejocrack2024/TrabajoFinal
 ```
 levantar solo comando :
 cd inventario
