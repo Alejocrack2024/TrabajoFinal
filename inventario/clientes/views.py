@@ -8,35 +8,38 @@ from django.db.models import ProtectedError
 from .models import Cliente
 from .forms import ClienteForm
 
-# Mixin para permisos de Vendedor
+# Mixin personalizado para permisos de vendedor
 class VendedorPermissionMixin(PermissionRequiredMixin):
     """
-    Mixin que permite el acceso si el usuario tiene los permisos requeridos
-    O si pertenece al grupo 'vendedor'.
+    Permite acceso si usuario tiene permisos específicos O es del grupo 'vendedor'
     """
     def has_permission(self):
-        base_permission = super().has_permission()
-        es_vendedor = self.request.user.groups.filter(name='vendedor').exists()
-        return base_permission or es_vendedor
+        base_permission = super().has_permission()  # Verifica permisos base
+        es_vendedor = self.request.user.groups.filter(name='vendedor').exists()  # Verifica grupo
+        return base_permission or es_vendedor  # Acceso si cumple alguna condición
 
+# Vista para listar clientes
 class ClienteList(LoginRequiredMixin, VendedorPermissionMixin, ListView):
     model = Cliente
     template_name = 'clientes/cliente_list.html'
-    permission_required = 'clientes.view_cliente'
-    paginate_by = 10
+    permission_required = 'clientes.view_cliente'  # Permiso requerido
+    paginate_by = 10  # Paginación: 10 clientes por página
 
+# Vista para crear clientes
 class ClienteCreate(LoginRequiredMixin, VendedorPermissionMixin, CreateView):
     model = Cliente
-    form_class = ClienteForm
+    form_class = ClienteForm  # Formulario personalizado
     template_name = 'clientes/cliente_form.html'
-    success_url = reverse_lazy('clientes:cliente_list')
+    success_url = reverse_lazy('clientes:cliente_list')  # URL después de éxito
     permission_required = 'clientes.add_cliente'
 
     def form_valid(self, form):
         response = super().form_valid(form)
+        # Mensaje de éxito al crear cliente
         messages.success(self.request, f"Cliente '{self.object}' creado con éxito.")
         return response
 
+# Vista para editar clientes
 class ClienteUpdate(LoginRequiredMixin, VendedorPermissionMixin, UpdateView):
     model = Cliente
     form_class = ClienteForm
@@ -46,9 +49,11 @@ class ClienteUpdate(LoginRequiredMixin, VendedorPermissionMixin, UpdateView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
+        # Mensaje de éxito al actualizar
         messages.success(self.request, f"Cliente '{self.object}' actualizado con éxito.")
         return response
 
+# Vista para eliminar clientes
 class ClienteDelete(LoginRequiredMixin, VendedorPermissionMixin, DeleteView):
     model = Cliente
     template_name = 'clientes/cliente_confirm_delete.html'
@@ -64,6 +69,7 @@ class ClienteDelete(LoginRequiredMixin, VendedorPermissionMixin, DeleteView):
             return response
 
         except ProtectedError:
+            # Maneja error si el cliente tiene ventas asociadas
             messages.error(
                 request, 
                 f"No se puede borrar el cliente '{self.object}' porque tiene "
@@ -73,9 +79,10 @@ class ClienteDelete(LoginRequiredMixin, VendedorPermissionMixin, DeleteView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['action'] = 'eliminar'
+        context['action'] = 'eliminar'  # Contexto adicional para template
         return context
 
+# Vista para ver detalles de cliente
 class ClienteDetail(LoginRequiredMixin, VendedorPermissionMixin, DetailView):
     model = Cliente
     template_name = 'clientes/cliente_detail.html'

@@ -1,19 +1,19 @@
 from django.urls import path
 from .views import ClienteList, ClienteCreate, ClienteUpdate, ClienteDelete, ClienteDetail
 
-app_name = 'clientes'
+app_name = 'clientes'  # Namespace para las URLs
 
 urlpatterns = [
-    # URL para la lista de clientes
+    # URL para listar todos los clientes
     path('', ClienteList.as_view(), name='cliente_list'),
     
     # URL para crear un nuevo cliente
     path('crear/', ClienteCreate.as_view(), name='cliente_create'),
     
-    # URL para ver los detalles de un cliente
+    # URL para ver detalles de un cliente específico
     path('<int:pk>/', ClienteDetail.as_view(), name='cliente_detail'),
     
-    # URL para actualizar un cliente existente
+    # URL para editar un cliente existente
     path('<int:pk>/editar/', ClienteUpdate.as_view(), name='cliente_update'),
     
     # URL para eliminar un cliente
